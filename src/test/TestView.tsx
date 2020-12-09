@@ -7,7 +7,7 @@ import { RecyclerListView, DataProvider, LayoutProvider } from '@/components/thi
  *
  * @return {*} 数据
  */
-function generateData() {
+function generateData(): Array<any> {
     const array = [];
     for (let i = 0; i < 100; i++) {
         const row: { [index: string]: string } = {
@@ -59,7 +59,7 @@ export default class TestView extends Component {
         return (
             <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
                 {Object.values(data).map((item: any, index: number) => (
-                    <Text style={{ width: 120 }}>{item}</Text>
+                    <Text key={`cell${index}`} style={{ width: 120 }}>{item}</Text>
                 ))}
             </View>
         );
