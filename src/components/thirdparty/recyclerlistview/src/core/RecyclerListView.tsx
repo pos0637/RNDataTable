@@ -359,6 +359,10 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
         );
     }
 
+    public scrollTo(x: number, y: number, animate: boolean): void {
+        this._scrollComponent?.scrollTo(x, y, animate);
+    }
+
     protected getVirtualRenderer(): VirtualRenderer {
         return this._virtualRenderer;
     }
