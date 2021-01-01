@@ -41,7 +41,7 @@ export default class TestView extends Component {
         return (
             <View style={{ flex: 1 }}>
                 <Text>TestView</Text>
-                <RecyclerListView ref={this.contentView} isHorizontal={false} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} stickyColumnsRowRenderer={this._stickyColumnsRowRenderer} />
+                <RecyclerListView ref={this.contentView} isHorizontal={false} stickyColumnsWidth={120} contentColumnsWidth={3000} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} stickyColumnsRowRenderer={this._stickyColumnsRowRenderer} />
             </View>
         );
     }
@@ -52,13 +52,6 @@ export default class TestView extends Component {
             (_type, dim) => {
                 dim.width = 3000;
                 dim.height = 100;
-            },
-            (dim) => {
-                dim.width = 120;
-                dim.height = 100;
-            },
-            (dim) => {
-                dim.width = 3000;
             }
         );
     }

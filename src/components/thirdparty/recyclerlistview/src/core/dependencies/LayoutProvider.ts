@@ -33,17 +33,13 @@ export abstract class BaseLayoutProvider {
 export class LayoutProvider extends BaseLayoutProvider {
     private _getLayoutTypeForIndex: (index: number) => string | number;
     private _setLayoutForType: (type: string | number, dim: Dimension, index: number) => void;
-    private _getStickyColumnsLayout?: (dim: Dimension) => void;
-    private _getContentColumnsLayout?: (dim: Dimension) => void;
     private _tempDim: Dimension;
     private _lastLayoutManager: WrapGridLayoutManager | undefined;
 
-    constructor(getLayoutTypeForIndex: (index: number) => string | number, setLayoutForType: (type: string | number, dim: Dimension, index: number) => void, getStickyColumnsLayout: (dim: Dimension) => void, getContentColumnsLayout: (dim: Dimension) => void) {
+    constructor(getLayoutTypeForIndex: (index: number) => string | number, setLayoutForType: (type: string | number, dim: Dimension, index: number) => void) {
         super();
         this._getLayoutTypeForIndex = getLayoutTypeForIndex;
         this._setLayoutForType = setLayoutForType;
-        this._getStickyColumnsLayout = getStickyColumnsLayout;
-        this._getContentColumnsLayout = getContentColumnsLayout;
         this._tempDim = { height: 0, width: 0 };
     }
 
@@ -71,18 +67,6 @@ export class LayoutProvider extends BaseLayoutProvider {
             this._lastLayoutManager.setMaxBounds(dimension2);
         }
         return dimension1.height !== dimension2.height || dimension1.width !== dimension2.width;
-    }
-
-    public getStickyColumnsLayout(): Dimension {
-        const dimension: Dimension = { height: 0, width: 0 };
-        this._getStickyColumnsLayout && this._getStickyColumnsLayout(dimension);
-        return dimension;
-    }
-
-    public getContentColumnsLayout(): Dimension {
-        const dimension: Dimension = { height: 0, width: 0 };
-        this._getContentColumnsLayout && this._getContentColumnsLayout(dimension);
-        return dimension;
     }
 }
 

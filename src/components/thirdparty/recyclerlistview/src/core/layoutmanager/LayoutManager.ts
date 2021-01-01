@@ -38,10 +38,6 @@ export abstract class LayoutManager {
 
     //Recompute layouts from given index, compute heavy stuff should be here
     public abstract relayoutFromIndex(startIndex: number, itemCount: number): void;
-
-    public abstract getStickyColumnsLayout(): Dimension;
-
-    public abstract getContentColumnsLayout(): Dimension;
 }
 
 export class WrapGridLayoutManager extends LayoutManager {
@@ -167,14 +163,6 @@ export class WrapGridLayoutManager extends LayoutManager {
             this._layouts.splice(itemCount, oldItemCount - itemCount);
         }
         this._setFinalDimensions(maxBound);
-    }
-
-    public getStickyColumnsLayout(): Dimension {
-        return this._layoutProvider.getStickyColumnsLayout();
-    }
-
-    public getContentColumnsLayout(): Dimension {
-        return this._layoutProvider.getContentColumnsLayout();
     }
 
     private _pointDimensionsToRect(itemRect: Layout): void {

@@ -72,18 +72,29 @@ export default class ScrollComponent extends BaseScrollComponent {
         //     scrollThrottle,
         //     ...props,
         // } = this.props;
-        console.debug(contentContainerProps.style.width);
-        return (
-            <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
-                <View style={{ flexDirection: this.props.isHorizontal ? 'column' : 'row' }}>
-                    <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(stickyColumnsContainerProps, this.props.stickyColumnsChildren)}</View>
-                    <ScrollView style={{ flex: 1 }} horizontal>
-                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(contentContainerProps, this.props.children)}</View>
-                    </ScrollView>
-                </View>
-                {this.props.renderFooter ? this.props.renderFooter() : null}
-            </Scroller>
-        );
+        if (typeof this.props.stickyColumnsChildren === 'undefined') {
+            console.debug(contentContainerProps.style.width);
+            return (
+                <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
+                    <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>
+                        {renderContentContainer(contentContainerProps, this.props.children)}
+                        {this.props.renderFooter ? this.props.renderFooter() : null}
+                    </View>
+                </Scroller>
+            );
+        } else {
+            return (
+                <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
+                    <View style={{ flexDirection: this.props.isHorizontal ? 'column' : 'row' }}>
+                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(stickyColumnsContainerProps, this.props.stickyColumnsChildren)}</View>
+                        <ScrollView style={{ flex: 1 }} horizontal>
+                            <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(contentContainerProps, this.props.children)}</View>
+                        </ScrollView>
+                    </View>
+                    {this.props.renderFooter ? this.props.renderFooter() : null}
+                </Scroller>
+            );
+        }
     }
 
     private _defaultContainer(props: object, children: React.ReactNode): React.ReactNode | null {

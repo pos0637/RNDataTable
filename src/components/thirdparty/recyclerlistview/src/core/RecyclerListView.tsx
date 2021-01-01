@@ -80,7 +80,7 @@ export interface RecyclerListViewProps {
     layoutProvider: BaseLayoutProvider;
     dataProvider: BaseDataProvider;
     rowRenderer: (type: string | number, data: any, index: number, extendedState?: object) => JSX.Element | JSX.Element[] | null;
-    stickyColumnsRowRenderer: (type: string | number, data: any, index: number, extendedState?: object) => JSX.Element | JSX.Element[] | null;
+    stickyColumnsRowRenderer?: (type: string | number, data: any, index: number, extendedState?: object) => JSX.Element | JSX.Element[] | null;
     contextProvider?: ContextProvider;
     renderAheadOffset?: number;
     isHorizontal?: boolean;
@@ -111,6 +111,8 @@ export interface RecyclerListViewProps {
     scrollViewProps?: object;
     applyWindowCorrection?: (offsetX: number, offsetY: number, windowCorrection: WindowCorrection) => void;
     onItemLayout?: (index: number) => void;
+    stickyColumnsWidth?: number;
+    contentColumnsWidth?: number;
 }
 
 export interface RecyclerListViewState {
@@ -350,24 +352,40 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
         //     rowRenderer,
         //     ...props,
         // } = this.props;
-        return (
-            <ScrollComponent
-                ref={(scrollComponent) => (this._scrollComponent = scrollComponent as BaseScrollComponent | null)}
-                {...this.props}
-                {...this.props.scrollViewProps}
-                onScroll={this._onScroll}
-                onSizeChanged={this._onSizeChanged}
-                contentHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
-                contentWidth={this._initComplete ? this._virtualRenderer.getLayoutDimension().width : 0}
-                stickyColumnsHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
-                stickyColumnsWidth={this._initComplete ? this._virtualRenderer.getLayoutManager()?.getStickyColumnsLayout().width : 0}
-                contentColumnsHeight={this._initComplete ? this._virtualRenderer.getLayoutManager()?.getContentColumnsLayout().height : 0}
-                contentColumnsWidth={this._initComplete ? this._virtualRenderer.getLayoutManager()?.getContentColumnsLayout().width : 0}
-                renderAheadOffset={this.getCurrentRenderAheadOffset()}
-                children={this._generateRenderStack()}
-                stickyColumnsChildren={this._generateStickyColumnsRenderStack()}
-            ></ScrollComponent>
-        );
+        if (typeof this.props.stickyColumnsRowRenderer === 'undefined') {
+            return (
+                <ScrollComponent
+                    ref={(scrollComponent) => (this._scrollComponent = scrollComponent as BaseScrollComponent | null)}
+                    {...this.props}
+                    {...this.props.scrollViewProps}
+                    onScroll={this._onScroll}
+                    onSizeChanged={this._onSizeChanged}
+                    contentHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
+                    contentWidth={this._initComplete ? this.props.contentColumnsWidth || this._virtualRenderer.getLayoutDimension().width : 0}
+                    renderAheadOffset={this.getCurrentRenderAheadOffset()}
+                    children={this._generateRenderStack()}
+                ></ScrollComponent>
+            );
+        } else {
+            return (
+                <ScrollComponent
+                    ref={(scrollComponent) => (this._scrollComponent = scrollComponent as BaseScrollComponent | null)}
+                    {...this.props}
+                    {...this.props.scrollViewProps}
+                    onScroll={this._onScroll}
+                    onSizeChanged={this._onSizeChanged}
+                    contentHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
+                    contentWidth={this._initComplete ? this._virtualRenderer.getLayoutDimension().width : 0}
+                    stickyColumnsHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
+                    stickyColumnsWidth={this._initComplete ? this.props.stickyColumnsWidth || this._virtualRenderer.getLayoutDimension().width : 0}
+                    contentColumnsHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
+                    contentColumnsWidth={this._initComplete ? this.props.contentColumnsWidth || this._virtualRenderer.getLayoutDimension().width : 0}
+                    renderAheadOffset={this.getCurrentRenderAheadOffset()}
+                    children={this._generateRenderStack()}
+                    stickyColumnsChildren={this._generateStickyColumnsRenderStack()}
+                ></ScrollComponent>
+            );
+        }
     }
 
     public scrollTo(x: number, y: number, animate: boolean): void {
@@ -613,7 +631,6 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
         const dataIndex = itemMeta.dataIndex;
         if (!ObjectUtil.isNullOrUndefined(dataIndex) && dataIndex < dataSize) {
             const itemRect = (this._virtualRenderer.getLayoutManager() as LayoutManager).getLayouts()[dataIndex];
-            const dimension = (this._virtualRenderer.getLayoutManager() as LayoutManager).getStickyColumnsLayout();
             const data = this.props.dataProvider.getDataForIndex(dataIndex);
             const type = this.props.layoutProvider.getLayoutTypeForIndex(dataIndex);
             const key = this._virtualRenderer.syncAndGetKey(dataIndex);
@@ -637,8 +654,8 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
                     isHorizontal={this.props.isHorizontal}
                     onSizeChanged={this._onStickyColumnsViewContainerSizeChange}
                     childRenderer={this.props.stickyColumnsRowRenderer}
-                    height={dimension.height}
-                    width={dimension.width}
+                    height={itemRect.height}
+                    width={this.props.stickyColumnsWidth ?? itemRect.width}
                     itemAnimator={Default.value<ItemAnimator>(this.props.itemAnimator, this._defaultItemAnimator)}
                     extendedState={this.props.extendedState}
                     internalSnapshot={this.state.internalSnapshot}
@@ -678,13 +695,13 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
     private _onStickyColumnsViewContainerSizeChange = (dim: Dimension, index: number): void => {
         //Cannot be null here
         const layoutManager: LayoutManager = this._virtualRenderer.getLayoutManager() as LayoutManager;
-        const dimension = (this._virtualRenderer.getLayoutManager() as LayoutManager).getStickyColumnsLayout();
 
         if (this.props.debugHandlers && this.props.debugHandlers.resizeDebugHandler) {
+            const itemRect = layoutManager.getLayouts()[index];
             this.props.debugHandlers.resizeDebugHandler.resizeDebug(
                 {
-                    width: dimension.width,
-                    height: dimension.height,
+                    width: itemRect.width,
+                    height: this.props.stickyColumnsWidth ?? itemRect.height,
                 },
                 dim,
                 index

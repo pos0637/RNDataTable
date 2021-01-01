@@ -1,12 +1,12 @@
-import RecycleItemPool from "../utils/RecycleItemPool";
-import { Dimension, BaseLayoutProvider } from "./dependencies/LayoutProvider";
-import CustomError from "./exceptions/CustomError";
-import RecyclerListViewExceptions from "./exceptions/RecyclerListViewExceptions";
-import { Point, LayoutManager } from "./layoutmanager/LayoutManager";
-import ViewabilityTracker, { TOnItemStatusChanged, WindowCorrection } from "./ViewabilityTracker";
-import { ObjectUtil, Default } from "ts-object-utils";
-import TSCast from "../utils/TSCast";
-import { BaseDataProvider } from "./dependencies/DataProvider";
+import RecycleItemPool from '../utils/RecycleItemPool';
+import { Dimension, BaseLayoutProvider } from './dependencies/LayoutProvider';
+import CustomError from './exceptions/CustomError';
+import RecyclerListViewExceptions from './exceptions/RecyclerListViewExceptions';
+import { Point, LayoutManager } from './layoutmanager/LayoutManager';
+import ViewabilityTracker, { TOnItemStatusChanged, WindowCorrection } from './ViewabilityTracker';
+import { ObjectUtil, Default } from 'ts-object-utils';
+import TSCast from '../utils/TSCast';
+import { BaseDataProvider } from './dependencies/DataProvider';
 
 /***
  * Renderer which keeps track of recyclable items and the currently rendered items. Notifies list view to re render if something changes, like scroll offset
@@ -18,7 +18,9 @@ export interface StableIdMapItem {
     key: string;
     type: string | number;
 }
-export interface RenderStack { [key: string]: RenderStackItem; }
+export interface RenderStack {
+    [key: string]: RenderStackItem;
+}
 
 export interface RenderStackParams {
     isHorizontal?: boolean;
@@ -31,7 +33,6 @@ export interface RenderStackParams {
 export type StableIdProvider = (index: number) => string;
 
 export default class VirtualRenderer {
-
     private onVisibleItemsChanged: TOnItemStatusChanged | null;
 
     private _scrollOnNextUpdate: (point: Point) => void;
@@ -52,10 +53,7 @@ export default class VirtualRenderer {
     private _viewabilityTracker: ViewabilityTracker | null = null;
     private _dimensions: Dimension | null;
 
-    constructor(renderStackChanged: (renderStack: RenderStack) => void,
-                scrollOnNextUpdate: (point: Point) => void,
-                fetchStableId: StableIdProvider,
-                isRecyclingEnabled: boolean) {
+    constructor(renderStackChanged: (renderStack: RenderStack) => void, scrollOnNextUpdate: (point: Point) => void, fetchStableId: StableIdProvider, isRecyclingEnabled: boolean) {
         //Keeps track of items that need to be rendered in the next render cycle
         this._renderStack = {};
 
@@ -187,9 +185,7 @@ export default class VirtualRenderer {
         this.getInitialOffset();
         this._recyclePool = new RecycleItemPool();
         if (this._params) {
-            this._viewabilityTracker = new ViewabilityTracker(
-                Default.value<number>(this._params.renderAheadOffset, 0),
-                Default.value<number>(this._params.initialOffset, 0));
+            this._viewabilityTracker = new ViewabilityTracker(Default.value<number>(this._params.renderAheadOffset, 0), Default.value<number>(this._params.initialOffset, 0));
         } else {
             this._viewabilityTracker = new ViewabilityTracker(0, 0);
         }
@@ -242,7 +238,7 @@ export default class VirtualRenderer {
         const stackItem = renderStack[key];
         if (stackItem && stackItem.dataIndex !== index) {
             //Probable collision, warn
-            console.warn("Possible stableId collision @", index); //tslint:disable-line
+            console.warn('Possible stableId collision @', index); //tslint:disable-line
         }
         return key;
     }
@@ -296,7 +292,8 @@ export default class VirtualRenderer {
                             const cllKey = this._getCollisionAvoidingKey();
                             newRenderStack[cllKey] = { dataIndex: index };
                             this._stableIdToRenderKeyMap[getStableId(index)] = {
-                                key: cllKey, type: this._layoutProvider.getLayoutTypeForIndex(index),
+                                key: cllKey,
+                                type: this._layoutProvider.getLayoutTypeForIndex(index),
                             };
                         }
                     }
@@ -318,7 +315,7 @@ export default class VirtualRenderer {
     }
 
     private _getCollisionAvoidingKey(): string {
-        return "#" + this._startKey++ + "_rlv_c";
+        return '#' + this._startKey++ + '_rlv_c';
     }
 
     private _prepareViewabilityTracker(): void {
@@ -327,13 +324,14 @@ export default class VirtualRenderer {
             if (this.onVisibleItemsChanged) {
                 this._viewabilityTracker.onVisibleRowsChanged = this._onVisibleItemsChanged;
             }
-            this._viewabilityTracker.setLayouts(this._layoutManager.getLayouts(), this._params.isHorizontal ?
-                this._layoutManager.getContentDimension().width :
-                this._layoutManager.getContentDimension().height);
-            this._viewabilityTracker.setDimensions({
-                height: this._dimensions.height,
-                width: this._dimensions.width,
-            }, Default.value<boolean>(this._params.isHorizontal, false));
+            this._viewabilityTracker.setLayouts(this._layoutManager.getLayouts(), this._params.isHorizontal ? this._layoutManager.getContentDimension().width : this._layoutManager.getContentDimension().height);
+            this._viewabilityTracker.setDimensions(
+                {
+                    height: this._dimensions.height,
+                    width: this._dimensions.width,
+                },
+                Default.value<boolean>(this._params.isHorizontal, false)
+            );
         } else {
             throw new CustomError(RecyclerListViewExceptions.initializationException);
         }
@@ -343,7 +341,7 @@ export default class VirtualRenderer {
         if (this.onVisibleItemsChanged) {
             this.onVisibleItemsChanged(all, now, notNow);
         }
-    }
+    };
 
     private _onEngagedItemsChanged = (all: number[], now: number[], notNow: number[]): void => {
         const count = notNow.length;
@@ -367,7 +365,7 @@ export default class VirtualRenderer {
             //Ask Recycler View to update itself
             this._renderStackChanged(this._renderStack);
         }
-    }
+    };
 
     //Updates render stack and reports whether anything has changed
     private _updateRenderStack(itemIndexes: number[]): boolean {
