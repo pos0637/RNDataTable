@@ -1,13 +1,7 @@
-import * as React from "react";
-import {
-    LayoutChangeEvent,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    ScrollView,
-    View,
-} from "react-native";
-import BaseScrollComponent, { ScrollComponentProps } from "../../../core/scrollcomponent/BaseScrollComponent";
-import TSCast from "../../../utils/TSCast";
+import * as React from 'react';
+import { LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View } from 'react-native';
+import BaseScrollComponent, { ScrollComponentProps } from '../../../core/scrollcomponent/BaseScrollComponent';
+import TSCast from '../../../utils/TSCast';
 /***
  * The responsibility of a scroll component is to report its size, scroll events and provide a way to scroll to a given offset.
  * RecyclerListView works on top of this interface and doesn't care about the implementation. To support web we only had to provide
@@ -51,8 +45,8 @@ export default class ScrollComponent extends BaseScrollComponent {
                 height: this.props.contentHeight,
                 width: this.props.contentWidth,
             },
-            horizontal : this.props.isHorizontal,
-            scrollOffset : this._offset,
+            horizontal: this.props.isHorizontal,
+            scrollOffset: this._offset,
             windowSize: (this.props.isHorizontal ? this._width : this._height) + this.props.renderAheadOffset,
         };
         //TODO:Talha
@@ -68,30 +62,27 @@ export default class ScrollComponent extends BaseScrollComponent {
         //     ...props,
         // } = this.props;
         return (
-            <Scroller ref={this._getScrollViewRef}
-                removeClippedSubviews={false}
-                scrollEventThrottle={this.props.scrollThrottle}
-                {...this.props}
-                horizontal={this.props.isHorizontal}
-                onScroll={this._onScroll}
-                onLayout={(!this._isSizeChangedCalledOnce || this.props.canChangeSize) ? this._onLayout : this.props.onLayout}>
-                <View style={{ flexDirection: this.props.isHorizontal ? "row" : "column" }}>
-                    {renderContentContainer(contentContainerProps, this.props.children)}
-                    {this.props.renderFooter ? this.props.renderFooter() : null}
+            <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
+                <View style={{ flex: 1, flexDirection: this.props.isHorizontal ? 'column' : 'row', width: 500 }}>
+                    <View>
+                        <Text>123</Text>
+                    </View>
+                    <ScrollView style={{ flex: 1 }} horizontal>
+                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(contentContainerProps, this.props.children1)}</View>
+                    </ScrollView>
                 </View>
+                {this.props.renderFooter ? this.props.renderFooter() : null}
             </Scroller>
         );
     }
 
     private _defaultContainer(props: object, children: React.ReactNode): React.ReactNode | null {
-        return (
-            <View {...props}>
-                {children}
-            </View>
-        );
+        return <View {...props}>{children}</View>;
     }
 
-    private _getScrollViewRef = (scrollView: any) => { this._scrollViewRef = scrollView as (ScrollView | null); };
+    private _getScrollViewRef = (scrollView: any) => {
+        this._scrollViewRef = scrollView as ScrollView | null;
+    };
 
     private _onScroll = (event?: NativeSyntheticEvent<NativeScrollEvent>): void => {
         if (event) {
@@ -99,7 +90,7 @@ export default class ScrollComponent extends BaseScrollComponent {
             this._offset = this.props.isHorizontal ? contentOffset.x : contentOffset.y;
             this.props.onScroll(contentOffset.x, contentOffset.y, event);
         }
-    }
+    };
 
     private _onLayout = (event: LayoutChangeEvent): void => {
         if (this._height !== event.nativeEvent.layout.height || this._width !== event.nativeEvent.layout.width) {
@@ -113,5 +104,5 @@ export default class ScrollComponent extends BaseScrollComponent {
         if (this.props.onLayout) {
             this.props.onLayout(event);
         }
-    }
+    };
 }

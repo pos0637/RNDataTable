@@ -40,11 +40,8 @@ export default class TestView extends Component {
     protected render() {
         return (
             <View style={{ flex: 1 }}>
-                <Text>TestView</Text>
-                <ScrollView style={{ flex: 1 }} horizontal>
-                    <RecyclerListView ref={this.stickyColumnsView} style={{ width: 120 }} isHorizontal={false} layoutProvider={this._stickyColumnsLayoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._stickyColumnsRowRenderer} onScroll={(event: ScrollEvent) => this._onScroll(this.stickyColumnsView, event)} />
-                    <RecyclerListView ref={this.contentView} style={{ width: 3000 }} isHorizontal={false} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} onScroll={(event: ScrollEvent) => this._onScroll(this.contentView, event)} />
-                </ScrollView>
+                <Text>TestView</Text>                
+                <RecyclerListView ref={this.contentView} style={{ width: 3000 }} isHorizontal={false} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} />                
             </View>
         );
     }
@@ -91,23 +88,5 @@ export default class TestView extends Component {
                 </View>
             </View>
         );
-    }
-
-    private _onScroll(sender: RefObject<any>, event: ScrollEvent) {
-        if (this.scrollLocker) {
-            return;
-        }
-
-        this.scrollLocker = true;
-
-        const y = event.nativeEvent.contentOffset.y;
-        if (sender !== this.stickyColumnsView) {
-            this.stickyColumnsView.current.scrollTo({ y: y });
-        }
-        if (sender !== this.contentView) {
-            this.contentView.current.scrollTo({ y: y });
-        }
-
-        this.scrollLocker = false;
     }
 }
