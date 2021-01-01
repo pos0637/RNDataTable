@@ -7,6 +7,10 @@ export interface ScrollComponentProps {
     onScroll: (offsetX: number, offsetY: number, rawEvent: ScrollEvent) => void;
     contentHeight: number;
     contentWidth: number;
+    stickyColumnsHeight?: number;
+    stickyColumnsWidth?: number;
+    contentColumnsHeight?: number;
+    contentColumnsWidth?: number;
     canChangeSize?: boolean;
     externalScrollView?: { new (props: ScrollViewDefaultProps): BaseScrollView };
     isHorizontal?: boolean;
@@ -16,7 +20,8 @@ export interface ScrollComponentProps {
     onLayout?: any;
     renderContentContainer?: (props?: object, children?: React.ReactNode) => React.ReactNode | null;
     renderAheadOffset: number;
-    children1?: React.ReactNode;
+    children?: React.ReactNode;
+    stickyColumnsChildren?: React.ReactNode;
 }
 export default abstract class BaseScrollComponent extends React.Component<ScrollComponentProps, {}> {
     public abstract scrollTo(x: number, y: number, animate: boolean): void;

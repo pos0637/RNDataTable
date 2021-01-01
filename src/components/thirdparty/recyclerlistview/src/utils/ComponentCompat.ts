@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 //Interim solve given we want to be active on old react as well for now.
 export abstract class ComponentCompat<T1 = {}, T2 = {}, SS = any> extends React.Component<T1, T2, SS> {

@@ -37,11 +37,11 @@ export default class TestView extends Component {
         dataProvider: this.dataProvider.cloneWithRows(generateData()),
     };
 
-    protected render() {
+    public render() {
         return (
             <View style={{ flex: 1 }}>
-                <Text>TestView</Text>                
-                <RecyclerListView ref={this.contentView} style={{ width: 3000 }} isHorizontal={false} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} />                
+                <Text>TestView</Text>
+                <RecyclerListView ref={this.contentView} isHorizontal={false} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} stickyColumnsRowRenderer={this._stickyColumnsRowRenderer} />
             </View>
         );
     }
@@ -52,13 +52,20 @@ export default class TestView extends Component {
             (_type, dim) => {
                 dim.width = 3000;
                 dim.height = 100;
+            },
+            (dim) => {
+                dim.width = 120;
+                dim.height = 100;
+            },
+            (dim) => {
+                dim.width = 3000;
             }
         );
     }
 
     private _rowRenderer(type: string | number, data: any, index: number) {
         return (
-            <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', position: 'relative' }}>
+            <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', width: 3000 }}>
                 {Object.values(data).map((item: any, i: number) => (
                     <View key={`view${index}-${i}`}>
                         <Text key={`cell${index}-${i}`} style={{ width: 120 }}>
@@ -67,16 +74,6 @@ export default class TestView extends Component {
                     </View>
                 ))}
             </View>
-        );
-    }
-
-    private _stickyColumnsLayoutProvider(): LayoutProvider {
-        return new LayoutProvider(
-            () => 0,
-            (_type, dim) => {
-                dim.width = 3000;
-                dim.height = 100;
-            }
         );
     }
 

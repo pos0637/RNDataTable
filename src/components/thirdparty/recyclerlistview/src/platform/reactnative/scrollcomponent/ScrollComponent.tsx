@@ -12,6 +12,8 @@ export default class ScrollComponent extends BaseScrollComponent {
     public static defaultProps = {
         contentHeight: 0,
         contentWidth: 0,
+        stickyColumnsHeight: 0,
+        stickyColumnsWidth: 0,
         externalScrollView: TSCast.cast(ScrollView), //TSI
         isHorizontal: false,
         scrollThrottle: 16,
@@ -42,8 +44,17 @@ export default class ScrollComponent extends BaseScrollComponent {
         const renderContentContainer = this.props.renderContentContainer ? this.props.renderContentContainer : this._defaultContainer;
         const contentContainerProps = {
             style: {
-                height: this.props.contentHeight,
-                width: this.props.contentWidth,
+                height: this.props.contentColumnsHeight || this.props.contentHeight,
+                width: this.props.contentColumnsWidth || this.props.contentWidth,
+            },
+            horizontal: this.props.isHorizontal,
+            scrollOffset: this._offset,
+            windowSize: (this.props.isHorizontal ? this._width : this._height) + this.props.renderAheadOffset,
+        };
+        const stickyColumnsContainerProps = {
+            style: {
+                height: this.props.stickyColumnsHeight || 0,
+                width: this.props.stickyColumnsWidth || 0,
             },
             horizontal: this.props.isHorizontal,
             scrollOffset: this._offset,
@@ -61,14 +72,13 @@ export default class ScrollComponent extends BaseScrollComponent {
         //     scrollThrottle,
         //     ...props,
         // } = this.props;
+        console.debug(contentContainerProps.style.width);
         return (
             <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
-                <View style={{ flex: 1, flexDirection: this.props.isHorizontal ? 'column' : 'row', width: 500 }}>
-                    <View>
-                        <Text>123</Text>
-                    </View>
+                <View style={{ flexDirection: this.props.isHorizontal ? 'column' : 'row' }}>
+                    <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(stickyColumnsContainerProps, this.props.stickyColumnsChildren)}</View>
                     <ScrollView style={{ flex: 1 }} horizontal>
-                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(contentContainerProps, this.props.children1)}</View>
+                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(contentContainerProps, this.props.children)}</View>
                     </ScrollView>
                 </View>
                 {this.props.renderFooter ? this.props.renderFooter() : null}

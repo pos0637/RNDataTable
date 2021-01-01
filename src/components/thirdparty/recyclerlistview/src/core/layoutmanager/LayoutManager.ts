@@ -2,8 +2,8 @@
  * Computes the positions and dimensions of items that will be rendered by the list. The output from this is utilized by viewability tracker to compute the
  * lists of visible/hidden item.
  */
-import { Dimension, LayoutProvider } from "../dependencies/LayoutProvider";
-import CustomError from "../exceptions/CustomError";
+import { Dimension, LayoutProvider } from '../dependencies/LayoutProvider';
+import CustomError from '../exceptions/CustomError';
 
 export abstract class LayoutManager {
     public getOffsetForIndex(index: number): Point {
@@ -12,8 +12,8 @@ export abstract class LayoutManager {
             return { x: layouts[index].x, y: layouts[index].y };
         } else {
             throw new CustomError({
-                message: "No layout available for index: " + index,
-                type: "LayoutUnavailableException",
+                message: 'No layout available for index: ' + index,
+                type: 'LayoutUnavailableException',
             });
         }
     }
@@ -38,6 +38,10 @@ export abstract class LayoutManager {
 
     //Recompute layouts from given index, compute heavy stuff should be here
     public abstract relayoutFromIndex(startIndex: number, itemCount: number): void;
+
+    public abstract getStickyColumnsLayout(): Dimension;
+
+    public abstract getContentColumnsLayout(): Dimension;
 }
 
 export class WrapGridLayoutManager extends LayoutManager {
@@ -71,8 +75,8 @@ export class WrapGridLayoutManager extends LayoutManager {
             return { x: this._layouts[index].x, y: this._layouts[index].y };
         } else {
             throw new CustomError({
-                message: "No layout available for index: " + index,
-                type: "LayoutUnavailableException",
+                message: 'No layout available for index: ' + index,
+                type: 'LayoutUnavailableException',
             });
         }
     }
@@ -165,6 +169,14 @@ export class WrapGridLayoutManager extends LayoutManager {
         this._setFinalDimensions(maxBound);
     }
 
+    public getStickyColumnsLayout(): Dimension {
+        return this._layoutProvider.getStickyColumnsLayout();
+    }
+
+    public getContentColumnsLayout(): Dimension {
+        return this._layoutProvider.getContentColumnsLayout();
+    }
+
     private _pointDimensionsToRect(itemRect: Layout): void {
         if (this._isHorizontal) {
             this._totalWidth = itemRect.x;
@@ -201,7 +213,7 @@ export class WrapGridLayoutManager extends LayoutManager {
     }
 
     private _checkBounds(itemX: number, itemY: number, itemDim: Dimension, isHorizontal: boolean): boolean {
-        return isHorizontal ? (itemY + itemDim.height <= this._window.height) : (itemX + itemDim.width <= this._window.width);
+        return isHorizontal ? itemY + itemDim.height <= this._window.height : itemX + itemDim.width <= this._window.width;
     }
 }
 
