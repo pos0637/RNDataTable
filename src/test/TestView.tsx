@@ -1,16 +1,17 @@
-import React, { Component, createRef, RefObject } from 'react';
-import { Text, View, ScrollView, Dimensions, ScaledSize, LayoutChangeEvent } from 'react-native';
+import React, { Component, createRef, RefObject, useState } from 'react';
+import { Text, View } from 'react-native';
 import { RecyclerListView, DataProvider, LayoutProvider } from '@/components/thirdparty/recyclerlistview/src';
-import { ScrollEvent } from '@/components/thirdparty/recyclerlistview/src/core/scrollcomponent/BaseScrollView';
+import BindingData from '@/miscs/bindingData';
 
 /**
  * 生成数据
  *
- * @return {*} 数据
+ * @param {number} count 数量
+ * @return {*}  {Array<any>} 数据
  */
-function generateData(): Array<any> {
+function generateData(count: number): Array<any> {
     const array = [];
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < count; i++) {
         const row: { [index: string]: string } = {
             id: i.toString(),
             name: `name${i}`,
@@ -26,22 +27,41 @@ function generateData(): Array<any> {
     return array;
 }
 
+const FooterView = (props: { vmodel: BindingData }) => {
+    const [value, setValue] = useState(props.vmodel.bind('value', (_val: String, newVal: String) => setValue(newVal)));
+    return (
+        <View style={{ flex: 1 }}>
+            <Text style={{ textAlign: 'center' }}>{value}</Text>
+        </View>
+    );
+};
+
 export default class TestView extends Component {
-    stickyColumnsView: RefObject<any> = createRef();
-    contentView: RefObject<any> = createRef();
-    size: ScaledSize = Dimensions.get('window');
-    dataProvider: DataProvider = new DataProvider((r1, r2) => r1 !== r2);
-    scrollLocker: boolean = false;
+    private contentView: RefObject<any> = createRef();
+    private dataProvider: DataProvider = new DataProvider((r1, r2) => r1 !== r2);
+    private footer = new BindingData({ value: 'Loading...' });
 
     state = {
-        dataProvider: this.dataProvider.cloneWithRows(generateData()),
+        dataProvider: this.dataProvider.cloneWithRows(generateData(20)),
     };
 
     public render() {
         return (
             <View style={{ flex: 1 }}>
                 <Text>TestView</Text>
-                <RecyclerListView ref={this.contentView} isHorizontal={false} stickyColumnsWidth={120} contentColumnsWidth={3000} layoutProvider={this._layoutProvider()} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} stickyColumnsRowRenderer={this._stickyColumnsRowRenderer} />
+                <RecyclerListView
+                    ref={this.contentView}
+                    isHorizontal={false}
+                    stickyColumnsWidth={120}
+                    contentColumnsWidth={3000}
+                    layoutProvider={this._layoutProvider()}
+                    dataProvider={this.state.dataProvider}
+                    onEndReachedThreshold={100 * 3}
+                    onEndReached={() => this._onEndReached()}
+                    renderFooter={() => this._renderFooter()}
+                    rowRenderer={this._rowRenderer}
+                    stickyColumnsRowRenderer={this._stickyColumnsRowRenderer}
+                />
             </View>
         );
     }
@@ -54,6 +74,21 @@ export default class TestView extends Component {
                 dim.height = 100;
             }
         );
+    }
+
+    private _onEndReached(): void {
+        console.debug('onEndReached');
+        setTimeout(() => {
+            if (this.state.dataProvider.getSize() < 100) {
+                this.setState({ dataProvider: this.dataProvider.cloneWithRows(generateData(this.state.dataProvider.getSize() + 20)) });
+            } else {
+                this.footer.setData('value', 'no more data');
+            }
+        }, 1000);
+    }
+
+    private _renderFooter() {
+        return <FooterView vmodel={this.footer} />;
     }
 
     private _rowRenderer(type: string | number, data: any, index: number) {
