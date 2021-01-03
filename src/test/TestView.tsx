@@ -1,6 +1,7 @@
 import React, { Component, createRef, RefObject, useState } from 'react';
-import { Text, View, RefreshControl } from 'react-native';
+import { Text, View, ScrollView, RefreshControl } from 'react-native';
 import { RecyclerListView, DataProvider, LayoutProvider } from '@/components/thirdparty/recyclerlistview/src';
+import { ScrollEvent } from '@/components/thirdparty/recyclerlistview/src/core/scrollcomponent/BaseScrollView';
 import BindingData from '@/miscs/bindingData';
 
 /**
@@ -37,6 +38,7 @@ const FooterView = (props: { vmodel: BindingData }) => {
 };
 
 export default class TestView extends Component {
+    private headerView: RefObject<any> = createRef();
     private contentView: RefObject<any> = createRef();
     private dataProvider: DataProvider = new DataProvider((r1, r2) => r1 !== r2);
     private footer = new BindingData({ value: 'Loading...' });
@@ -50,6 +52,16 @@ export default class TestView extends Component {
         return (
             <View style={{ flex: 1 }}>
                 <Text>TestView</Text>
+                <View style={{ flexDirection: 'row', width: '100%', height: 40 }}>
+                    <View style={{ width: 120, height: 40 }}>
+                        <Text>sticky header</Text>
+                    </View>
+                    <ScrollView ref={this.headerView} horizontal>
+                        <View style={{ width: 3000, height: 40 }}>
+                            <Text>header</Text>
+                        </View>
+                    </ScrollView>
+                </View>
                 <RecyclerListView
                     ref={this.contentView}
                     isHorizontal={false}
@@ -57,6 +69,7 @@ export default class TestView extends Component {
                     contentColumnsWidth={3000}
                     layoutProvider={this._layoutProvider()}
                     dataProvider={this.state.dataProvider}
+                    onContentViewScroll={(event) => this._onScroll(event)}
                     onEndReachedThreshold={100 * 3}
                     onEndReached={() => this._onEndReached()}
                     renderFooter={() => this._renderFooter()}
@@ -128,5 +141,10 @@ export default class TestView extends Component {
                 </View>
             </View>
         );
+    }
+
+    private _onScroll(event: ScrollEvent) {
+        const x = event.nativeEvent.contentOffset.x;
+        this.headerView.current.scrollTo({ x: x, y: 0 });
     }
 }

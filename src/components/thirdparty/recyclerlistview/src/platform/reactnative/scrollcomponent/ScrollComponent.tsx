@@ -73,9 +73,16 @@ export default class ScrollComponent extends BaseScrollComponent {
         //     ...props,
         // } = this.props;
         if (typeof this.props.stickyColumnsChildren === 'undefined') {
-            console.debug(contentContainerProps.style.width);
             return (
-                <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
+                <Scroller
+                    ref={this._getScrollViewRef}
+                    removeClippedSubviews={false}
+                    scrollEventThrottle={this.props.scrollThrottle}
+                    {...this.props}
+                    horizontal={this.props.isHorizontal}
+                    onScroll={this._onScroll}
+                    onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}
+                >
                     <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>
                         {renderContentContainer(contentContainerProps, this.props.children)}
                         {this.props.renderFooter ? this.props.renderFooter() : null}
@@ -84,11 +91,23 @@ export default class ScrollComponent extends BaseScrollComponent {
             );
         } else {
             return (
-                <Scroller ref={this._getScrollViewRef} removeClippedSubviews={false} scrollEventThrottle={this.props.scrollThrottle} {...this.props} horizontal={this.props.isHorizontal} onScroll={this._onScroll} onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}>
+                <Scroller
+                    ref={this._getScrollViewRef}
+                    removeClippedSubviews={false}
+                    scrollEventThrottle={this.props.scrollThrottle}
+                    {...this.props}
+                    horizontal={this.props.isHorizontal}
+                    onScroll={this._onScroll}
+                    onLayout={!this._isSizeChangedCalledOnce || this.props.canChangeSize ? this._onLayout : this.props.onLayout}
+                >
                     <View style={{ flexDirection: this.props.isHorizontal ? 'column' : 'row' }}>
-                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(stickyColumnsContainerProps, this.props.stickyColumnsChildren)}</View>
-                        <ScrollView style={{ flex: 1 }} horizontal>
-                            <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>{renderContentContainer(contentContainerProps, this.props.children)}</View>
+                        <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>
+                            {renderContentContainer(stickyColumnsContainerProps, this.props.stickyColumnsChildren)}
+                        </View>
+                        <ScrollView style={{ flex: 1 }} horizontal onScroll={this._onContentViewScroll}>
+                            <View style={{ flexDirection: this.props.isHorizontal ? 'row' : 'column' }}>
+                                {renderContentContainer(contentContainerProps, this.props.children)}
+                            </View>
                         </ScrollView>
                     </View>
                     {this.props.renderFooter ? this.props.renderFooter() : null}
@@ -110,6 +129,12 @@ export default class ScrollComponent extends BaseScrollComponent {
             const contentOffset = event.nativeEvent.contentOffset;
             this._offset = this.props.isHorizontal ? contentOffset.x : contentOffset.y;
             this.props.onScroll(contentOffset.x, contentOffset.y, event);
+        }
+    };
+
+    private _onContentViewScroll = (event?: NativeSyntheticEvent<NativeScrollEvent>): void => {
+        if (event) {
+            this.props.onContentViewScroll && this.props.onContentViewScroll(event);
         }
     };
 

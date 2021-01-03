@@ -113,6 +113,7 @@ export interface RecyclerListViewProps {
     onItemLayout?: (index: number) => void;
     stickyColumnsWidth?: number;
     contentColumnsWidth?: number;
+    onContentViewScroll?: (rawEvent: ScrollEvent) => void;
 }
 
 export interface RecyclerListViewState {
@@ -233,7 +234,10 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
                         const layoutManager = this._virtualRenderer.getLayoutManager();
                         if (layoutManager) {
                             const layoutsToCache = layoutManager.getLayouts();
-                            this.props.contextProvider.save(uniqueKey + Constants.CONTEXT_PROVIDER_LAYOUT_KEY_SUFFIX, JSON.stringify({ layoutArray: layoutsToCache }));
+                            this.props.contextProvider.save(
+                                uniqueKey + Constants.CONTEXT_PROVIDER_LAYOUT_KEY_SUFFIX,
+                                JSON.stringify({ layoutArray: layoutsToCache })
+                            );
                         }
                     }
                 }
@@ -359,6 +363,7 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
                     {...this.props}
                     {...this.props.scrollViewProps}
                     onScroll={this._onScroll}
+                    onContentViewScroll={this.props.onContentViewScroll}
                     onSizeChanged={this._onSizeChanged}
                     contentHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
                     contentWidth={this._initComplete ? this.props.contentColumnsWidth || this._virtualRenderer.getLayoutDimension().width : 0}
@@ -373,6 +378,7 @@ export default class RecyclerListView<P extends RecyclerListViewProps, S extends
                     {...this.props}
                     {...this.props.scrollViewProps}
                     onScroll={this._onScroll}
+                    onContentViewScroll={this.props.onContentViewScroll}
                     onSizeChanged={this._onSizeChanged}
                     contentHeight={this._initComplete ? this._virtualRenderer.getLayoutDimension().height : 0}
                     contentWidth={this._initComplete ? this._virtualRenderer.getLayoutDimension().width : 0}

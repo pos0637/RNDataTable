@@ -22,6 +22,7 @@ export interface ScrollComponentProps {
     renderAheadOffset: number;
     children?: React.ReactNode;
     stickyColumnsChildren?: React.ReactNode;
+    onContentViewScroll?: (rawEvent: ScrollEvent) => void;
 }
 export default abstract class BaseScrollComponent extends React.Component<ScrollComponentProps, {}> {
     public abstract scrollTo(x: number, y: number, animate: boolean): void;
