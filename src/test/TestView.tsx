@@ -1,5 +1,5 @@
 import React, { Component, createRef, RefObject, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, RefreshControl } from 'react-native';
 import { RecyclerListView, DataProvider, LayoutProvider } from '@/components/thirdparty/recyclerlistview/src';
 import BindingData from '@/miscs/bindingData';
 
@@ -43,6 +43,7 @@ export default class TestView extends Component {
 
     state = {
         dataProvider: this.dataProvider.cloneWithRows(generateData(20)),
+        loading: false,
     };
 
     public render() {
@@ -61,6 +62,20 @@ export default class TestView extends Component {
                     renderFooter={() => this._renderFooter()}
                     rowRenderer={this._rowRenderer}
                     stickyColumnsRowRenderer={this._stickyColumnsRowRenderer}
+                    scrollViewProps={{
+                        refreshControl: (
+                            <RefreshControl
+                                refreshing={this.state.loading}
+                                onRefresh={async () => {
+                                    this.setState({ loading: true });
+                                    setTimeout(() => {
+                                        this.setState({ dataProvider: this.dataProvider.cloneWithRows(generateData(20)) });
+                                        this.setState({ loading: false });
+                                    }, 1000);
+                                }}
+                            />
+                        ),
+                    }}
                 />
             </View>
         );
